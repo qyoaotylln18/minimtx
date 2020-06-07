@@ -1,0 +1,110 @@
+---
+version: '3.7'
+services:
+  web:
+    image: ansible/awx_web:${AWX_VERSION}
+    container_name: awx_web
+    depends_on:
+      - rabbitmq
+      - memcached
+      - postgres
+    ports:
+      - "80:8052"
+    hostname: awxweb
+    user: root
+    restart: unless-stopped
+    volumes:
+      - "./files/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./files/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./files/credentials.py:/etc/tower/conf.d/credentials.py"
+      - "./files/nginx.conf:/etc/nginx/nginx.conf:ro"
+    networks: ['stack']
+    environment:
+      http_proxy:
+      https_proxy:
+      no_proxy:
+
+  task:
+    image: ansible/awx_task:${AWX_VERSION}
+    container_name: awx_task
+    depends_on:
+      - rabbitmq
+      - memcached
+      - web
+      - postgres
+    hostname: awx
+    user: root
+    restart: unless-stopped
+    volumes:
+      - "./files/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./files/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./files/credentials.py:/etc/tower/conf.d/credentials.py"
+    networks: ['stack']
+    environment:
+      http_proxy:
+      https_proxy:
+      no_proxy:
+
+  rabbitmq:
+    image: ansible/awx_rabbitmq:${AWX_RABBITMQ_VERSION}
+    container_name: awx_rabbitmq
+    restart: unless-stopped
+    networks: ['stack']
+    environment:
+      RABBITMQ_DEFAULT_VHOST: "awx"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "awxpass"
+      RABBITMQ_ERLANG_COOKIE: cookiemonster
+      http_proxy:
+      https_proxy:
+      no_proxy:
+
+  memcached:
+    image: "memcached:alpine"
+    container_name: awx_memcached
+    restart: unless-stopped
+    networks: ['stack']
+    environment:
+      http_proxy:
+      https_proxy:
+      no_proxy:
+
+  postgres:
+    image: postgres:${AWX_POSTGRES_VERSION}
+    container_name: awx_postgres
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data/pgdata:Z
+    networks: ['stack']
+    environment:
+      POSTGRES_USER: awx
+      POSTGRES_PASSWORD: awxpass
+      POSTGRES_DB: awx
+      PGDATA: /var/lib/postgresql/data/pgdata
+      http_proxy:
+      https_proxy:
+      no_proxy:
+
+  gitea:
+    image: gitea/gitea:${AWX_GITEA_VERSION}
+    container_name: awx_gitea
+    hostname: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - SSH_DOMAIN=gitea
+    restart: always
+    networks: ['stack']
+    volumes:
+      - gitea_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "22:22"
+
+networks: {stack:{}}
+
+volumes:
+  db_data:
+  gitea_data:
