@@ -1,6 +1,6 @@
 # minimtx
 
-minimtx is the name for this docker-compose project that contains working revisions of awx and gitlab. minimtx is primary
+minimtx is the name for this docker-compose project that contains working revisions of awx and gitea. minimtx is primary
 made for testing/learning purposes only.
  
 
@@ -16,15 +16,14 @@ docker-compose | [https://docs.docker.com/compose/reference/overview/](https://d
 
 Installation
 ---
-supermatic is based on docker-compose. The following brief description shows how you can run supermatic:
+minimtx is based on docker-compose. The following brief description shows how you can run minimtx:
 
         $ cd ~
-        $ git clone https://github.com/prosmc/minimtx.git
+        $ git clone https://github.com/schneidermatix/minimtx.git
         $ cd minimtx
         $ git checkout master
-        $ cd minimtx-005
         $ source ./.envrc
-        $ x_inst
+        $ x_up
 
 Show all commands
 ---
@@ -32,7 +31,7 @@ You can list the commands which are provided by minimtx with ...
 
         $ cmd
 
-After a successfull installation awx and gitlab are availabe under the following URLs:
+After a successfull installation awx and gitea are availabe under the following URLs:
 
         AWX - http://localhost/
 
@@ -40,6 +39,7 @@ You can log in with the following credentials
 
 User: admin <br>
 Password: password <br>
+
 
 Contributing
 ---
