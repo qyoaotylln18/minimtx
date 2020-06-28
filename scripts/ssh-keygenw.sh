@@ -28,9 +28,9 @@
 
 SSH_DIR=$PROJECT_HOME/ssh-keys
 
-if [ ! -e $CWD/ssh-keys ]
+if [ ! -e $SSH_DIR ]
 then
-   mkdir -p $CWD/ssh-keys
+   mkdir -p $SSH_DIR
 fi
   
 ssh-keygen -t rsa -b 4096 -C "${USER}@${HOST}" -f $SSH_DIR/id_rsa
