@@ -1,12 +1,12 @@
 ---
-version: '3.7'
+version: "3.7"
+
 services:
   web:
-    image: ansible/awx_web:${AWX_VERSION}
+    image: ansible/awx:15.0.1
     container_name: awx_web
     depends_on:
-      - rabbitmq
-      - memcached
+      - redis
       - postgres
     ports:
       - "80:8052"
@@ -14,79 +14,77 @@ services:
     user: root
     restart: unless-stopped
     volumes:
-      - "./files/SECRET_KEY:/etc/tower/SECRET_KEY"
-      - "./files/environment.sh:/etc/tower/conf.d/environment.sh"
-      - "./files/credentials.py:/etc/tower/conf.d/credentials.py"
-      - "./files/nginx.conf:/etc/nginx/nginx.conf:ro"
-    networks: ['stack']
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - rsyslog-config:/var/lib/awx/rsyslog/
+      - "./resources/awxcompose/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./resources/awxcompose/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./resources/awxcompose/credentials.py:/etc/tower/conf.d/credentials.py"
+      - "./resources/awxcompose/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
     environment:
-      http_proxy:
-      https_proxy:
-      no_proxy:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    networks: ['stack']
 
   task:
-    image: ansible/awx_task:${AWX_VERSION}
+    image: ansible/awx:15.0.1
     container_name: awx_task
     depends_on:
-      - rabbitmq
-      - memcached
+      - redis
       - web
       - postgres
+    command: /usr/bin/launch_awx_task.sh
     hostname: awx
     user: root
     restart: unless-stopped
     volumes:
-      - "./files/SECRET_KEY:/etc/tower/SECRET_KEY"
-      - "./files/environment.sh:/etc/tower/conf.d/environment.sh"
-      - "./files/credentials.py:/etc/tower/conf.d/credentials.py"
-    networks: ['stack']
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - rsyslog-config:/var/lib/awx/rsyslog/
+      - "./resources/awxcompose/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./resources/awxcompose/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./resources/awxcompose/credentials.py:/etc/tower/conf.d/credentials.py"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
     environment:
-      http_proxy:
-      https_proxy:
-      no_proxy:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+      SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
+    networks: ['stack']
 
-  rabbitmq:
-    image: ansible/awx_rabbitmq:${AWX_RABBITMQ_VERSION}
-    container_name: awx_rabbitmq
+  redis:
+    image: redis
+    container_name: awx_redis
     restart: unless-stopped
-    networks: ['stack']
     environment:
-      RABBITMQ_DEFAULT_VHOST: "awx"
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "awxpass"
-      RABBITMQ_ERLANG_COOKIE: cookiemonster
-      http_proxy:
-      https_proxy:
-      no_proxy:
-
-  memcached:
-    image: "memcached:alpine"
-    container_name: awx_memcached
-    restart: unless-stopped
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    command: ["/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - "./resources/awxcompose/redis.conf:/usr/local/etc/redis/redis.conf:ro"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
     networks: ['stack']
-    environment:
-      http_proxy:
-      https_proxy:
-      no_proxy:
 
   postgres:
-    image: postgres:${AWX_POSTGRES_VERSION}
+    image: postgres:10
     container_name: awx_postgres
     restart: unless-stopped
     volumes:
-      - db_data:/var/lib/postgresql/data/pgdata:Z
-    networks: ['stack']
+      - "./resources/awxcompose/pgdocker/10/data/:/var/lib/postgresql/data:Z"
     environment:
       POSTGRES_USER: awx
       POSTGRES_PASSWORD: awxpass
       POSTGRES_DB: awx
-      PGDATA: /var/lib/postgresql/data/pgdata
-      http_proxy:
-      https_proxy:
-      no_proxy:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    networks: ['stack']
 
   gitea:
-    image: gitea/gitea:${AWX_GITEA_VERSION}
+    image: gitea/gitea:${AWX_GITEA_RELEASE}
     container_name: awx_gitea
     hostname: gitea
     environment:
@@ -94,17 +92,19 @@ services:
       - USER_GID=1000
       - SSH_DOMAIN=gitea
     restart: always
-    networks: ['stack']
     volumes:
-      - gitea_data:/data
+      - gitea-data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
       - "22:22"
-
-networks: {stack:{}}
+    networks: ['stack']
 
 volumes:
-  db_data:
-  gitea_data:
+  supervisor-socket:
+  rsyslog-socket:
+  rsyslog-config:
+  gitea-data:
+
+networks: {stack:{}}

@@ -83,9 +83,27 @@ services:
       no_proxy: 
     networks: ['stack']
 
+  gogs:
+    image: gogs/gogs:${AWX_GOGS_RELEASE}
+    container_name: awx_gogs
+    hostname: gogs
+    environment:
+      - USERMAP_GID=1000
+      - USERMAP_UID=1000
+    restart: always
+    volumes:
+      - gogs-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "22:22"
+    networks: ['stack']
+
 volumes:
   supervisor-socket:
   rsyslog-socket:
   rsyslog-config:
+  gogs-data:
 
 networks: {stack:{}}

@@ -23,7 +23,7 @@ minimtx is based on docker-compose. The following brief description shows how yo
         $ cd minimtx
         $ git checkout master
         $ source ./.envrc
-        $ x_inst
+        $ x_up
 
 Show all commands
 ---
