@@ -33,12 +33,11 @@
 ##########################################
 
 export PROJECT_HOME=$(pwd)
-export PROJECT_NAME="minimtx-010"
+export PROJECT_NAME="minimtx-005"
 
 PATH=$PROJECT_HOME/scripts:$PATH
 
 IMAGES=("ansible/awx"
-        "gitea/gitea"
         "redis"
         "postgres")
 

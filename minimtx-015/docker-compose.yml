@@ -1,0 +1,109 @@
+---
+version: "3.7"
+
+services:
+  web:
+    image: ansible/awx:15.0.1
+    container_name: awx_web
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - "80:8052"
+    hostname: awxweb
+    user: root
+    restart: unless-stopped
+    volumes:
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - rsyslog-config:/var/lib/awx/rsyslog/
+      - "./resources/awxcompose/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./resources/awxcompose/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./resources/awxcompose/credentials.py:/etc/tower/conf.d/credentials.py"
+      - "./resources/awxcompose/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    networks: ['stack']
+
+  task:
+    image: ansible/awx:15.0.1
+    container_name: awx_task
+    depends_on:
+      - redis
+      - web
+      - postgres
+    command: /usr/bin/launch_awx_task.sh
+    hostname: awx
+    user: root
+    restart: unless-stopped
+    volumes:
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - rsyslog-config:/var/lib/awx/rsyslog/
+      - "./resources/awxcompose/SECRET_KEY:/etc/tower/SECRET_KEY"
+      - "./resources/awxcompose/environment.sh:/etc/tower/conf.d/environment.sh"
+      - "./resources/awxcompose/credentials.py:/etc/tower/conf.d/credentials.py"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+      SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
+    networks: ['stack']
+
+  redis:
+    image: redis
+    container_name: awx_redis
+    restart: unless-stopped
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    command: ["/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - "./resources/awxcompose/redis.conf:/usr/local/etc/redis/redis.conf:ro"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
+    networks: ['stack']
+
+  postgres:
+    image: postgres:10
+    container_name: awx_postgres
+    restart: unless-stopped
+    volumes:
+      - "./resources/awxcompose/pgdocker/10/data/:/var/lib/postgresql/data:Z"
+    environment:
+      POSTGRES_USER: awx
+      POSTGRES_PASSWORD: awxpass
+      POSTGRES_DB: awx
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    networks: ['stack']
+
+  gogs:
+    image: gogs/gogs:${AWX_GOGS_RELEASE}
+    container_name: awx_gogs
+    hostname: gogs
+    environment:
+      - USERMAP_GID=1000
+      - USERMAP_UID=1000
+    restart: always
+    volumes:
+      - gogs-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "22:22"
+    networks: ['stack']
+
+volumes:
+  supervisor-socket:
+  rsyslog-socket:
+  rsyslog-config:
+  gogs-data:
+
+networks: {stack:{}}
