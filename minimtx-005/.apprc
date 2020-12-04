@@ -64,20 +64,24 @@ x_destroy() {
 }
 
 x_setup() {
-    docker-compose up -d
-}    
+  docker-compose up -d
+}  
+
+x_up() {
+  x_setup
+}
 
 x_stop() {
-    docker-compose stop
+  docker-compose stop
 }
 
 x_start() {
-    docker-compose start
+  docker-compose start
 }
 
 x_restart() {
-    x_stop
-    x_start
+  x_stop
+  x_start
 }
 
 ##########################################
