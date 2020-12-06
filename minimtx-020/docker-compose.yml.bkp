@@ -3,14 +3,14 @@ version: "3.7"
 
 services:
   web:
-    image: ansible/awx:${AWX_RELEASE}
+    image: ansible/awx:15.0.1
     container_name: awx_web
     depends_on:
       - redis
       - postgres
     ports:
       - "80:8052"
-    hostname: awxweb
+    #hostname: awxweb
     user: root
     restart: unless-stopped
     volumes:
@@ -30,14 +30,14 @@ services:
       - 'stack'
 
   task:
-    image: ansible/awx:${AWX_RELEASE}
+    image: ansible/awx:15.0.1
     container_name: awx_task
     depends_on:
       - redis
       - web
       - postgres
     command: /usr/bin/launch_awx_task.sh
-    hostname: awx
+    #hostname: awxtask
     user: root
     restart: unless-stopped
     volumes:
@@ -59,6 +59,7 @@ services:
   redis:
     image: redis
     container_name: awx_redis
+    #hostname: awxredis
     restart: unless-stopped
     environment:
       http_proxy: 
@@ -67,13 +68,14 @@ services:
     command: ["/usr/local/etc/redis/redis.conf"]
     volumes:
       - "./resources/awxcompose/redis.conf:/usr/local/etc/redis/redis.conf:ro"
-      - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
+      - "./resources/awxcompose/redis_socket:/var/run/redis/:Z"
     networks: 
       - 'stack'
 
   postgres:
     image: postgres:10
     container_name: awx_postgres
+    #hostname: awxpostgres
     restart: unless-stopped
     volumes:
       - "./resources/awxcompose/pgdocker/10/data/:/var/lib/postgresql/data:Z"
@@ -90,7 +92,7 @@ services:
   gitea:
     image: gitea/gitea:${AWX_GITEA_RELEASE}
     container_name: awx_gitea
-    hostname: gitea
+    hostname: awxgitea
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -103,6 +105,33 @@ services:
     ports:
       - "3000:3000"
       - "22:22"
+    networks: 
+      - 'stack'
+
+  tools:
+    build:
+      context: .
+      dockerfile: ./awxtools.dockerfile
+    image: schneidermatic/${ARTIFACT_NAME_01}:${ARTIFACT_RELEASE_01}
+    container_name: "awx_tools"
+    hostname: awxtools
+    volumes:
+      - ./resources/docker/ssh-keys:/home/sysadm/.ssh/
+    ports:
+      - "2221:22"
+    networks: 
+      - 'stack'
+
+  server1:
+    build:
+      context: .
+    image: schneidermatic/${ARTIFACT_NAME_02}:${ARTIFACT_RELEASE_02}
+    container_name: "server1"
+    hostname: server1
+    volumes:
+      - ./resources/docker/ssh-keys:/home/sysadm/.ssh/
+    ports:
+      - "2222:22"
     networks: 
       - 'stack'
 

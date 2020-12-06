@@ -26,11 +26,37 @@
 # PURPOSE:      Shell wrapper for ssh-keygen
 #==============================================================================
 
-SSH_DIR=$PROJECT_HOME/ssh-keys
 
-if [ ! -e $SSH_DIR ]
-then
-   mkdir -p $SSH_DIR
-fi
-  
-ssh-keygen -t rsa -b 4096 -C "${USER}@${HOST}" -f $SSH_DIR/id_rsa
+##----------------------------------------
+## SUB FUNCTIONS
+##----------------------------------------
+ssh_keygen() {
+   if [ -z $SSH_DIR_PRIMARY ] && [ -z $SSH_DIR_SECONDARY ]
+   then
+      printf "SSH_DIR_PRIMARY/SECONDARY is not defined!!!\n"
+      exit 1
+   fi
+
+   if [ ! -e $SSH_DIR_PRIMARY ]
+   then
+      mkdir -p $SSH_DIR_PRIMARY
+   fi
+   ssh-keygen -t rsa -b 4096 -C "${USER}@${HOST}" -f $SSH_DIR_PRIMARY/id_rsa -q -N "$SSH_PASSPHRASE"
+
+   if [ ! -e $SSH_DIR_SECONDARY ]
+   then
+      mkdir -p $SSH_DIR_SECONDARY
+   fi
+   cp -r $SSH_DIR_PRIMARY/* $SSH_DIR_SECONDARY
+   cp $SSH_DIR_SECONDARY/id_rsa.pub $SSH_DIR_SECONDARY/authorized_keys
+}
+
+
+##----------------------------------------
+## MAIN
+##----------------------------------------
+main() {
+   ssh_keygen
+}
+
+main "$@"

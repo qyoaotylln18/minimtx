@@ -2,6 +2,7 @@
 
 minimtx is the name for this docker-compose project that contains working revisions of awx and gitea. minimtx is primary
 made for testing/learning purposes only.
+ 
 
 PREREQUISITES
 ---
@@ -10,19 +11,19 @@ For running minimtx you need the following software components on your host syst
 Name           | Reference    
 -------------- | --------------- 
 docker         | [https://docs.docker.com/engine/reference/run/](https://docs.docker.com/engine/reference/run/)
-docker-compose | [https://docs.docker.com/compose/reference/overview/](https://docs.docker.com/compose/reference/overview/)
+docker-compose | [https://docs.docker.com/compose/reference/overview/](https://docs.docker.com/compose/reference/overview/)       
+
 
 Installation
 ---
 minimtx is based on docker-compose. The following brief description shows how you can run minimtx:
 
         $ cd ~
-        $ git clone https://github.com/prosmc/minimtx.git
+        $ git clone https://github.com/schneidermatix/minimtx.git
         $ cd minimtx
         $ git checkout master
-        $ cd minimtx-010
         $ source ./.xrc
-        $ x_inst
+        $ x_up
 
 Show all commands
 ---
@@ -30,7 +31,7 @@ You can list the commands which are provided by minimtx with ...
 
         $ cmd
 
-After a successfull installation awx and Gitea are availabe under the following URLs:
+After a successfull installation awx and gitea are availabe under the following URLs:
 
         AWX - http://localhost/
         Gitea - http://localhost:3000
@@ -40,7 +41,7 @@ You can log in with the following credentials
 User: admin <br>
 Password: password <br>
 
-For Gitea you have to register a user when you run it for the first time.
+For Gitea you have to register a sample user when you call it for the first time.
 
 Contributing
 ---
