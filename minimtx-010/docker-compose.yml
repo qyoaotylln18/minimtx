@@ -3,7 +3,7 @@ version: "3.7"
 
 services:
   web:
-    image: ansible/awx:15.0.1
+    image: ansible/awx:${AWX_RELEASE}
     container_name: awx_web
     depends_on:
       - redis
@@ -26,10 +26,11 @@ services:
       http_proxy: 
       https_proxy: 
       no_proxy: 
-    networks: ['stack']
+    networks: 
+      - 'stack'
 
   task:
-    image: ansible/awx:15.0.1
+    image: ansible/awx:${AWX_RELEASE}
     container_name: awx_task
     depends_on:
       - redis
@@ -52,7 +53,8 @@ services:
       https_proxy: 
       no_proxy: 
       SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
-    networks: ['stack']
+    networks: 
+      - 'stack'
 
   redis:
     image: redis
@@ -66,7 +68,8 @@ services:
     volumes:
       - "./resources/awxcompose/redis.conf:/usr/local/etc/redis/redis.conf:ro"
       - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
-    networks: ['stack']
+    networks: 
+      - 'stack'
 
   postgres:
     image: postgres:10
@@ -81,7 +84,8 @@ services:
       http_proxy: 
       https_proxy: 
       no_proxy: 
-    networks: ['stack']
+    networks: 
+      - 'stack'
 
   gitea:
     image: gitea/gitea:${AWX_GITEA_RELEASE}
@@ -99,7 +103,8 @@ services:
     ports:
       - "3000:3000"
       - "22:22"
-    networks: ['stack']
+    networks: 
+      - 'stack'
 
 volumes:
   supervisor-socket:
@@ -107,4 +112,7 @@ volumes:
   rsyslog-config:
   gitea-data:
 
-networks: {stack:{}}
+networks:
+  stack:
+    driver: bridge
+
