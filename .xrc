@@ -16,7 +16,7 @@
 
 
 #==============================================================================
-# SCRIPT:       .envrc
+# SCRIPT:       .xrc
 # AUTOHR:       Markus Schneider
 # CONTRIBUTERS: Markus Schneider,<YOU>
 # DATE:         2021-02-06
@@ -27,7 +27,7 @@
 
 export PROJECT_HOME=$(pwd)
 export PROJECT_NAME="minimtx"
-export USER=$(whoami)
+export USER=sysadm
 export HOST=$(hostname)
 
 PATH=$PROJECT_HOME/resources:$PATH
