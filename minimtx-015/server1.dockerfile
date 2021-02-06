@@ -14,6 +14,7 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 
 RUN yum -y install sudo && \
     yum -y install openssh openssh-server openssh-clients && \
+    yum -y install python38 && \
     yum -y clean all
 
 RUN groupadd -r sysadm -g 666
