@@ -3,7 +3,7 @@ version: "3.7"
 
 services:
   web:
-    image: ansible/awx:15.0.1
+    image: ansible/awx:${AWX_RELEASE}
     container_name: awx_web
     depends_on:
       - redis
@@ -26,17 +26,18 @@ services:
       http_proxy: 
       https_proxy: 
       no_proxy: 
-    networks: ['stack']
+    networks: 
+      - 'awx'
 
   task:
-    image: ansible/awx:15.0.1
+    image: ansible/awx:${AWX_RELEASE}
     container_name: awx_task
+    hostname: awx
     depends_on:
       - redis
       - web
       - postgres
     command: /usr/bin/launch_awx_task.sh
-    hostname: awx
     user: root
     restart: unless-stopped
     volumes:
@@ -52,11 +53,13 @@ services:
       https_proxy: 
       no_proxy: 
       SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
-    networks: ['stack']
+    networks: 
+      - 'awx'
 
   redis:
     image: redis
     container_name: awx_redis
+    hostname: awxredis
     restart: unless-stopped
     environment:
       http_proxy: 
@@ -66,11 +69,13 @@ services:
     volumes:
       - "./resources/awxcompose/redis.conf:/usr/local/etc/redis/redis.conf:ro"
       - "./resources/awxcompose/redis_socket:/var/run/redis/:rw"
-    networks: ['stack']
+    networks: 
+      - 'awx'
 
   postgres:
     image: postgres:10
     container_name: awx_postgres
+    hostname: awxprostgres
     restart: unless-stopped
     volumes:
       - "./resources/awxcompose/pgdocker/10/data/:/var/lib/postgresql/data:Z"
@@ -81,29 +86,61 @@ services:
       http_proxy: 
       https_proxy: 
       no_proxy: 
-    networks: ['stack']
+    networks: 
+      - 'awx'
 
-  gogs:
-    image: gogs/gogs:${AWX_GOGS_RELEASE}
-    container_name: awx_gogs
-    hostname: gogs
+  gitea:
+    image: gitea/gitea:${AWX_GITEA_RELEASE}
+    container_name: awx_gitea
+    hostname: gitea
     environment:
-      - USERMAP_GID=1000
-      - USERMAP_UID=1000
+      - USER_UID=1000
+      - USER_GID=1000
+      - SSH_DOMAIN=gitea
     restart: always
     volumes:
-      - gogs-data:/data
+      - gitea-data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
       - "22:22"
-    networks: ['stack']
+    networks: 
+      - 'awx'
+
+  tools:
+    build:
+      context: .
+      dockerfile: ./awxtools.dockerfile
+    image: schneidermatic/${ARTIFACT_NAME_01}:${ARTIFACT_RELEASE_01}
+    container_name: "awx_tools"
+    hostname: awxtools
+    volumes:
+      - ./resources/docker/ssh-keys:/home/sysadm/.ssh/
+    ports:
+      - "2221:22"
+    networks: 
+      - 'awx'
+
+  server1:
+    build:
+      context: .
+    image: schneidermatic/${ARTIFACT_NAME_02}:${ARTIFACT_RELEASE_02}
+    container_name: "server1"
+    hostname: server1
+    volumes:
+      - ./resources/docker/ssh-keys:/home/sysadm/.ssh/
+    ports:
+      - "2222:22"
+    networks: 
+      - 'awx'
 
 volumes:
   supervisor-socket:
   rsyslog-socket:
   rsyslog-config:
-  gogs-data:
+  gitea-data:
 
-networks: {stack:{}}
+networks:
+  awx:
+    driver: bridge

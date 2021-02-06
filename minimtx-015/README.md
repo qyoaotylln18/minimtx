@@ -22,7 +22,7 @@ minimtx is based on docker-compose. The following brief description shows how yo
         $ git clone https://github.com/schneidermatix/minimtx.git
         $ cd minimtx
         $ git checkout master
-        $ source ./.envrc
+        $ source ./.xrc
         $ x_up
 
 Show all commands
