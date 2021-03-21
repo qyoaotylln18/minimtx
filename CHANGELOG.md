@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## minimtx-17.1.0/2021-03-21/schneidermatic
+
+### ADDED:
+- Branch minimtx-17.1.0 was added.
+
 ## minimtx-17.0.1/2021-03-21/schneidermatic
 
 ### ADDED:

@@ -16,7 +16,7 @@
 #******************************************************************************/
 
 #==============================================================================
-# SCRIPT:       .apprc
+# SCRIPT:       .xrc
 # AUTOHR:       Markus Schneider
 # CONTRIBUTERS: Markus Schneider,<YOU>
 # DATE:         2021-02-06
@@ -34,8 +34,14 @@
 
 export PROJECT_HOME=$(pwd)
 export PROJECT_NAME="minimtx-005"
+export SSH_DIR_PRIMARY=$PROJECT_HOME/resources/ssh-keys
+export SSH_DIR_SECONDARY=$PROJECT_HOME/resources/docker/ssh-keys
+export IP_ADDRESS=0.0.0.0
+export SSH_PASSPHRASE=
 
-PATH=$PROJECT_HOME/scripts:$PATH
+USER_NAME=$USER
+GROUP_NAME=$(id -gn $USER)
+PATH=$PROJECT_HOME/../scripts:$PATH:
 
 IMAGES=("ansible/awx"
         "redis"
@@ -54,35 +60,77 @@ x_down() {
   docker-compose down -v
 }
 
+##----------------------------------------
+## DESTROY THE AWX STACK
+##----------------------------------------
 x_destroy() {
   docker-compose down -v
   for image in ${IMAGES[@]}; do
     docker rmi --force $(docker images -q "${image}" | uniq) > /dev/null 2>&1
   done
-  sudo rm -rf $PROJECT_HOME/resources/pgdocker/*
-  sudo rm -rf $PROJECT_HOME/resources/redis_socket/*
+  sudo rm -rf $PROJECT_HOME/resources/awxcompose/pgdocker/*
+  sudo rm -rf $PROJECT_HOME/resources/awxcompose/redis_socket/*
+  sudo rm -rf $PROJECT_HOME/resources/ssh-keys/*
+  sudo rm -rf $PROJECT_HOME/resources/docker/ssh-keys/*
+  sudo chmod -R 775 $PROJECT_HOME/resources
+  sudo chown -R $USER_NAME:$GROUP_NAME $PROJECT_HOME/resources
 }
 
+##----------------------------------------
+## SETUP THE AWX STACK
+##----------------------------------------
 x_setup() {
-  docker-compose up -d
-}  
-
-x_up() {
-  x_setup
+  sudo chmod -R 775 $PROJECT_HOME/resources
+  sudo chown -R $USER_NAME:$GROUP_NAME $PROJECT_HOME/resources
+  sudo chmod -R 777 $PROJECT_HOME/resources/awxcompose/redis_socket
+  sudo chmod -R 777 $PROJECT_HOME/resources/awxcompose/pgdocker
+  sudo chown -R $USER_NAME:$GROUP_NAME $PROJECT_HOME/resources
+  ssh-keygenw.sh && docker-compose up
 }
 
+##----------------------------------------
+## STOP ALL CONTAINERS
+##----------------------------------------
 x_stop() {
   docker-compose stop
 }
 
+##----------------------------------------
+## START ALL CONTAINERS
+##----------------------------------------
 x_start() {
   docker-compose start
 }
 
+##----------------------------------------
+## RESTART ALL CONTAINERS
+##----------------------------------------
 x_restart() {
   x_stop
   x_start
 }
+
+##----------------------------------------
+## CLEAR KNOWN HOSTS
+##----------------------------------------
+x_rmkh() {
+  > $HOME/.ssh/known_hosts
+}
+
+##----------------------------------------
+## SSH LOGIN 'tools' CONTAINER
+##----------------------------------------
+x_tools() {
+  ssh -i $SSH_DIR_PRIMARY/id_rsa -p 2221 sysadm@${IP_ADDRESS}
+}
+
+##----------------------------------------
+## SSH LOGIN 'server1' CONTAINER
+##----------------------------------------
+x_server1() {
+  ssh -i $SSH_DIR_PRIMARY/id_rsa -p 2222 sysadm@${IP_ADDRESS}
+}
+
 
 ##########################################
 ##########################################

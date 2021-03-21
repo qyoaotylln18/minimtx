@@ -31,7 +31,7 @@
 ##########################################
 ##########################################
 export PROJECT_HOME=$(pwd)
-export PROJECT_NAME="minimtx-020"
+export PROJECT_NAME="minimtx-015"
 
 export ORIGIN="schneidermatic"
 export ENTITY="centos"
