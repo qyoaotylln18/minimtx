@@ -19,29 +19,26 @@ Installation
 minimtx is based on docker-compose. The following brief description shows how you can run minimtx:
 
         $ cd ~
-        $ git clone https://github.com/schneidermatix/minimtx.git
+        $ git clone https://github.com/prosmc/minimtx.git
         $ cd minimtx
         $ git checkout master
-        $ source ./.envrc
-        $ x_up
+        $ source ./.xrc
+        $ x_setup
 
 Show all commands
 ---
 You can list the commands which are provided by minimtx with ...
 
-        $ cmd
+        $ x_cmd
 
 After a successfull installation awx and gitea are availabe under the following URLs:
 
         AWX - http://localhost/
-        Gitea - http://localhost:3000
 
 You can log in with the following credentials
 
 User: admin <br>
 Password: password <br>
-
-For Gitea you have to register a sample user when you call it for the first time.
 
 Contributing
 ---

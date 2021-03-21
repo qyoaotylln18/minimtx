@@ -19,17 +19,17 @@ Installation
 minimtx is based on docker-compose. The following brief description shows how you can run minimtx:
 
         $ cd ~
-        $ git clone https://github.com/schneidermatix/minimtx.git
+        $ git clone https://github.com/prosmc/minimtx.git
         $ cd minimtx
         $ git checkout master
         $ source ./.xrc
-        $ x_up
+        $ x_setup
 
 Show all commands
 ---
 You can list the commands which are provided by minimtx with ...
 
-        $ cmd
+        $ x_cmd
 
 After a successfull installation awx and gitea are availabe under the following URLs:
 

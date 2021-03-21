@@ -22,13 +22,13 @@ minimtx is based on docker-compose. The following brief description shows how yo
         $ git checkout master
         $ cd minimtx-010
         $ source ./.xrc
-        $ x_inst
+        $ x_setup
 
 Show all commands
 ---
 You can list the commands which are provided by minimtx with ...
 
-        $ cmd
+        $ x_cmd
 
 After a successfull installation awx and Gitea are availabe under the following URLs:
 

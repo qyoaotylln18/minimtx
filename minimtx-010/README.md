@@ -19,11 +19,11 @@ Installation
 minimtx is based on docker-compose. The following brief description shows how you can run minimtx:
 
         $ cd ~
-        $ git clone https://github.com/schneidermatix/minimtx.git
+        $ git clone https://github.com/prosmc/minimtx.git
         $ cd minimtx
         $ git checkout master
-        $ source ./.envrc
-        $ x_up
+        $ source ./.xrc
+        $ x_setup
 
 Show all commands
 ---
