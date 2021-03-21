@@ -72,7 +72,7 @@ services:
       - 'stack'
 
   postgres:
-    image: postgres:10
+    image: postgres:${AWX_POSTGRES_RELEASE}
     container_name: awx_postgres
     restart: unless-stopped
     volumes:

@@ -73,7 +73,7 @@ services:
       - 'awx'
 
   postgres:
-    image: postgres:10
+    image: postgres:${AWX_POSTGRES_RELEASE}
     container_name: awx_postgres
     hostname: awxprostgres
     restart: unless-stopped
