@@ -125,6 +125,7 @@ services:
   server1:
     build:
       context: .
+      dockerfile: ./server1.dockerfile
     image: schneidermatic/${ARTIFACT_NAME_02}:${ARTIFACT_RELEASE_02}
     container_name: "server1"
     hostname: server1
